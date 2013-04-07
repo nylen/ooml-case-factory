@@ -14,8 +14,7 @@ DEL_FILE      = rm -f
 
 # Files
 
-SOURCES       = main.cpp 
-OBJECTS       = main.o
+OBJECTS       = main.o casefactory.o
 
 TARGET        = casefactory
 
@@ -26,11 +25,14 @@ TARGET        = casefactory
 all: $(TARGET)
 
 
-main.o: main.cpp geom.h cubieboard.h
+main.o: main.cpp geom.h boarddescription.h cubieboard.h casefactory.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
+casefactory.o: casefactory.cpp casefactory.h geom.h boarddescription.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o casefactory.o casefactory.cpp
 
-$(TARGET):  $(OBJECTS)  
+
+$(TARGET):  $(OBJECTS)
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
 
 
