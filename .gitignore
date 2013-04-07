@@ -5,4 +5,5 @@ ooml-casefactory*
 *.stl
 *.png
 *.jpg
+*.gcode
 
