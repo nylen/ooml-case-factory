@@ -32,6 +32,7 @@ BoardDescription cubieBoard()
         {57.5,  1.5,    15.5,  4.5,  2.0}, // Pins of the SATA port
         {81.0,  1.5,     5.5,  4.5,  1.5}, // Pins of the IR diode
         { 0.0, 14.0,    13.0,  7.5,  5.5}, // Audio port
+        {-2.0, 27.0,     5.5,  7.5,  4.5}, // Switch
     };
     b.topForbiddenAreas = {
         { 6.5,  1.1,    49.0,  5.0,  2.5}, // GPIO pins 1 - pins with solder
@@ -42,8 +43,9 @@ BoardDescription cubieBoard()
         {73.5,  7.0,    10.0,  7.0,  9.0}, // SATA power
         {81.0,  0.0,     6.0,  7.5, 11.0}, // IR diode
         {79.5, 43.5,    15.5, 18.0,  2.0}, // microSD slot incl. space for card
-        {88.0, 24.5,    12.6, 16.0,  5.5}, // HDMI port
+        {88.0, 25.0,    12.6, 16.0,  7.0}, // HDMI port
         {87.0,  1.5,    13.6,  8.5,  6.5}, // Power port
+        {96.0, 16.5,     5.5,  7.5,  4.5}, // Switch
     };
 
     // The board ports (connections).
@@ -105,14 +107,13 @@ BoardDescription cubieBoard()
         // HDMI
         {
             PortDescription::East, {
-                {25.5,  5.5},
-                {39.5,  5.5},
-                {39.5,  2.5},
-                {32.5,  -10}, // avoid bridge (about 30 degree overhang)
-                {25.5,  2.5}
+                {27.0, 5.0},
+                {39.0, 5.0},
+                {39.0,  -3}, // avoid bridge
+                {27.0,  -3}
             },
             1.0, // radius
-            1.0  // outset
+            2.0  // outset
         },
         // Power
         {
@@ -120,8 +121,8 @@ BoardDescription cubieBoard()
                 {6.5, 3.0},
                 {6.5,  -3} // avoid bridge
             },
-            2.8, // radius
-            2.0  // outset
+            3.0, // radius
+            1.0  // outset
         }
     };
 

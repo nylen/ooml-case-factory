@@ -28,7 +28,7 @@ struct CaseFactory
     // Case dimension parameters:
 
     // case thickness
-    double walls = 2.7;
+    double walls = 3.0;
     double floors = 2.0;
 
     // case holes at same position than the board holes, here for M3 screws

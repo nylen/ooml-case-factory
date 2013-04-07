@@ -28,9 +28,7 @@ int main(int argc, char* argv[])
     // Some different scene setups. Umcomment to enable.
 
     // Only the bottom
-    /*
     Component scene = factory.constructBottom();
-    */
 
     // Only the top
     /*
@@ -38,12 +36,14 @@ int main(int argc, char* argv[])
     */
 
     // Both parts side by side
+    /*
     double distance = 5; // mm
     Component scene = factory.constructBottom()
             + factory.constructTop()
             .translatedCopy(0, factory.outerDimensions().y + distance, 0);
+    */
 
-    // Both parts as assembled
+    // Both parts as assembled (Only for preview. Not printable!)
     /*
     double distance = 0.1; // mm
     Component scene = factory.constructBottom()
