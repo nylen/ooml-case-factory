@@ -4,6 +4,8 @@
 #include "boarddescription.h"
 
 
+// The CubieBoard,
+
 BoardDescription cubieBoard()
 {
     BoardDescription b;
@@ -11,7 +13,7 @@ BoardDescription cubieBoard()
     // Board size
     b.size[0] = 99.9;
     b.size[1] = 60.0;
-    b.thickness = 1.5;
+    b.thickness = 1.6; // Add about +.2 to the actual board size
 
     // Board holes
     b.holes = {
@@ -45,10 +47,10 @@ BoardDescription cubieBoard()
         {
             PortDescription::West, {
                 {17.8, 2.6},
-                {17.8,  -1} // avoid bridge
+                {17.8,  -3} // avoid bridge
             },
-            2.8,
-            2.0
+            2.9,
+            1.0
         }
     };
     b.topPorts = {
@@ -58,16 +60,16 @@ BoardDescription cubieBoard()
                 {17.8, 2.6},
                 {17.8,  -3} // avoid bridge
             },
-            2.8,
-            2.0
+            2.9,
+            1.0
         },
-        // USB Power
+        // MicroUSB
         {
             PortDescription::West, {
-                {26.5, 3.5},
-                {33.5, 3.5},
-                {33.5,  -3}, // avoid bridge
-                {26.5,  -3}
+                {27.0, 3.5},
+                {32.5, 3.5},
+                {32.5,  -3}, // avoid bridge
+                {27.0,  -3}
             },
             1.0,
             2.0
@@ -101,7 +103,7 @@ BoardDescription cubieBoard()
                 {25.5,  5.5},
                 {39.5,  5.5},
                 {39.5,  2.5},
-                {32.5,  -10}, // avoid bridge (approx 30 degree overhang)
+                {32.5,  -10}, // avoid bridge (about 30 degree overhang)
                 {25.5,  2.5}
             },
             1.5, // radius

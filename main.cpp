@@ -34,8 +34,8 @@ struct CaseFactory
     double floors = 2.0;
 
     // case holes at same position than the board holes, here for M3 screws
-    double holesRadiusLoose = board.holesRadius + .3; // The screw needs to slide through the hole (but not its head)
-    double holesRadiusTight = board.holesRadius - .1; // The screw needs to hold in the hole
+    double holesAddRadiusLoose =  .3; // The screw needs to slide through the hole (but not its head)
+    double holesAddRadiusTight = -.1; // The screw needs to hold in the hole
     double holesSize = 5.8; // size of the cuboid-shaped hole on the bottom case where the screw head fits in (>= screw head diameter)
     double holesWalls = 1.3; // ...and their wall thickness
     double holesFloors = 4.0; // ...and their floor thickness
@@ -111,7 +111,7 @@ private:
         auto forbiddenAreas  = (whichSide == BottomSide) ? board.bottomForbiddenAreas : board.topForbiddenAreas;
         auto ports           = (whichSide == BottomSide) ? board.bottomPorts          : board.topPorts;
         auto extension       = (whichSide == outerExtensionOnSide) ? ExtensionOutside  : ExtensionInside;
-        auto screwHoleRadius = (whichSide == screwHeadsOnSide) ? holesRadiusLoose : holesRadiusTight;
+        auto screwHoleRadius = (whichSide == screwHeadsOnSide) ? (board.holesRadius + holesAddRadiusLoose) : (board.holesRadius + holesAddRadiusTight);
         auto screwHeads      = (whichSide == screwHeadsOnSide);
 
         // We start with the base
