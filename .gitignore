@@ -1,0 +1,5 @@
+*.o
+casefactory
+*.scad
+*.stl
+
