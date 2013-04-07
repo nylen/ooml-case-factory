@@ -8,8 +8,6 @@
 #include "geom.h"
 #include "cubieboard.h"
 
-// Which board to print? Redirect the namespace to the measures of the board for which a case you want to construct.
-namespace board = CubieBoard::Measures;
 
 
 // Small epsilon value for building differences where positive and negative parts have (partly) common faces.
@@ -21,11 +19,12 @@ static const double eps = .1;
 
 struct CaseFactory
 {
+    CaseFactory(BoardDescription board) : board(board) {}
+
     enum Side {
         BottomSide,
         TopSide
     };
-
 
 
     // Case dimension parameters:
@@ -35,8 +34,8 @@ struct CaseFactory
     double floors = 2.0;
 
     // case holes at same position than the board holes, here for M3 screws
-    double holesRadiusLoose = board::holesRadius + .3; // The screw needs to slide through the hole (but not its head)
-    double holesRadiusTight = board::holesRadius - .1; // The screw needs to hold in the hole
+    double holesRadiusLoose = board.holesRadius + .3; // The screw needs to slide through the hole (but not its head)
+    double holesRadiusTight = board.holesRadius - .1; // The screw needs to hold in the hole
     double holesSize = 5.8; // size of the cuboid-shaped hole on the bottom case where the screw head fits in (>= screw head diameter)
     double holesWalls = 1.3; // ...and their wall thickness
     double holesFloors = 4.0; // ...and their floor thickness
@@ -84,6 +83,7 @@ struct CaseFactory
 
 
 private:
+    BoardDescription board;
 
     enum {
         ExtensionInside = 0,
@@ -92,15 +92,15 @@ private:
 
     double bottomHeight() { return bottomInnerHeight + floors; }
     double topHeight() { return topInnerHeight + floors; }
-    double extensionHeight() { return board::thickness; }
+    double extensionHeight() { return board.thickness; }
     double totalHeight() { return bottomHeight() + topHeight() + extensionHeight(); }
 
     // Returns the added size on each border in xy directions to the board's dimensions. (Case size = board size + 2 * outset)
     double outset() { return walls + space; }
 
     // Returns the case's size (see outset()).
-    double outerWidth() { return board::size[0] + 2 * outset(); }
-    double outerDepth() { return board::size[1] + 2 * outset(); }
+    double outerWidth() { return board.size[0] + 2 * outset(); }
+    double outerDepth() { return board.size[1] + 2 * outset(); }
 
     // Puts all things together required to build one part of the case (top / bottom)
     Component constructPart(Side whichSide)
@@ -108,8 +108,8 @@ private:
         // Select parameters depending on which part to build
         auto innerHeight     = (whichSide == BottomSide) ? bottomInnerHeight           : topInnerHeight;
         auto outerHeight     = (whichSide == BottomSide) ? bottomHeight()              : topHeight();
-        auto forbiddenAreas  = (whichSide == BottomSide) ? board::bottomForbiddenAreas : board::topForbiddenAreas;
-        auto ports           = (whichSide == BottomSide) ? board::bottomPorts          : board::topPorts;
+        auto forbiddenAreas  = (whichSide == BottomSide) ? board.bottomForbiddenAreas : board.topForbiddenAreas;
+        auto ports           = (whichSide == BottomSide) ? board.bottomPorts          : board.topPorts;
         auto extension       = (whichSide == outerExtensionOnSide) ? ExtensionOutside  : ExtensionInside;
         auto screwHoleRadius = (whichSide == screwHeadsOnSide) ? holesRadiusLoose : holesRadiusTight;
         auto screwHeads      = (whichSide == screwHeadsOnSide);
@@ -118,7 +118,7 @@ private:
         Component c = constructBase(innerHeight, extension);
 
         // Screw holes
-        for (auto hole : board::holes) {
+        for (auto hole : board.holes) {
             c = addHoleForScrew(c, outerHeight, hole, screwHoleRadius, screwHeads);
         }
 
@@ -157,7 +157,7 @@ private:
         // If this is the top, we've just built it mirrored. So we mirror the y axis and move it so it matches the dimensions of the bottom part.
         if (whichSide == TopSide) {
             c.scale(1.0, -1.0, 1.0);
-            c.translate(0.0, board::size[1], 0.0);
+            c.translate(0.0, board.size[1], 0.0);
         }
 
         return c;
@@ -167,18 +167,18 @@ private:
     Component constructBase(double innerHeight, int extensionDirection)
     {
         // The walls and the floor are made by subtracting two cuboids.
-        Component base = Cube(board::size[0] + 2*outset(), board::size[1] + 2*outset(), innerHeight + floors, false)
+        Component base = Cube(board.size[0] + 2*outset(), board.size[1] + 2*outset(), innerHeight + floors, false)
                 .translatedCopy(-outset(), -outset(), 0);
-        Component baseInner = Cube(board::size[0] + 2*space,  board::size[1] + 2*space,  innerHeight + eps, false)
+        Component baseInner = Cube(board.size[0] + 2*space,  board.size[1] + 2*space,  innerHeight + eps, false)
                 .translatedCopy(-space, -space, floors);
         base = base - baseInner;
 
         // Extension (half width wall goes a bit higher, either the inner or the outer half depending on extensionDirection)
         double off_ext_outer = walls * (extensionDirection ? 1.00 : 0.45) + space;
         double off_ext_inner = walls * (extensionDirection ? 0.55 : 0.00) + space;
-        Component extension = Cube(board::size[0] + 2*off_ext_outer, board::size[1] + 2*off_ext_outer, extensionHeight() + eps, false)
+        Component extension = Cube(board.size[0] + 2*off_ext_outer, board.size[1] + 2*off_ext_outer, extensionHeight() + eps, false)
                 .translatedCopy(-off_ext_outer, -off_ext_outer, innerHeight + floors - eps);
-        Component extensionInner = Cube(board::size[0] + 2*off_ext_inner, board::size[1] + 2*off_ext_inner, extensionHeight() + 3 * eps, false)
+        Component extensionInner = Cube(board.size[0] + 2*off_ext_inner, board.size[1] + 2*off_ext_inner, extensionHeight() + 3 * eps, false)
                 .translatedCopy(-off_ext_inner, -off_ext_inner, innerHeight + floors - 2 * eps);
         extension = extension - extensionInner;
 
@@ -214,22 +214,22 @@ private:
         return component + cuboid - hole;
     }
 
-    Component addHoleForPort(const Component & component, double partOuterHeight, const board::Port & port)
+    Component addHoleForPort(const Component & component, double partOuterHeight, const Port & port)
     {
         double off_xy = walls + space;
 
         // u is the vector facing in the positive axis parallel to the side (orthogonal to both n and the z axis)
         // v is the vector which is used for the port's local point's y coordinate and faces away from the board surface.
         Vec u = {0, 0, 0}, v = {0, 0, -1};
-        if (port.side == board::Port::North) { u.x = 1; }
-        if (port.side == board::Port::East)  { u.y = 1; }
-        if (port.side == board::Port::South) { u.x = 1; }
-        if (port.side == board::Port::West)  {  u.y = 1; }
+        if (port.side == Port::North) { u.x = 1; }
+        if (port.side == Port::East)  { u.y = 1; }
+        if (port.side == Port::South) { u.x = 1; }
+        if (port.side == Port::West)  {  u.y = 1; }
 
         // The base position of a port, if it has a local point of (0,0). This is the "origin" of the side.
         Vec base = {0, 0, partOuterHeight};
-        if (port.side == board::Port::North) { base.y = board::size[1]; }
-        if (port.side == board::Port::East)  { base.x = board::size[0]; }
+        if (port.side == Port::North) { base.y = board.size[1]; }
+        if (port.side == Port::East)  { base.x = board.size[0]; }
 
         // The hole is a hull of translated cylinders, so the hole is a rounded shape with radius port.radius along port.path [If the radius is 0, we use a tiny cylinder with 4 faces]
         Component cyl = Cylinder(std::max(port.radius, .001), off_xy + 2 * eps, port.radius == 0 ? 4 : 32, false);
@@ -264,13 +264,22 @@ private:
 
 int main(int argc, char* argv[])
 {
-    if (argc < 2)
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <out_file>" << std::endl;
+        std::cerr << "   where <out_file> is the target filename of the OpenSCAD file." << std::endl;
         return 1;
+    }
 
 
-    CaseFactory factory;
+    // Here, you can change the board for which a case you want to construct.
+    CaseFactory factory(cubieBoard());
+
+    // You can set some print settings which will help the factory to optimize print results.
     factory.printLevelHeight = .2;
     factory.printSafeBridgeLayerCount = 3;
+
+
+    // Some different scene setups. Umcomment to enable.
 
     // Only the bottom
     /*
@@ -278,15 +287,15 @@ int main(int argc, char* argv[])
     */
 
     // Only the top
+    /*
     Component scene = factory.constructTop();
+    */
 
     // Both parts side by side
-    /*
     double distance = 5; // mm
     Component scene = factory.constructBottom()
             + factory.constructTop()
             .translatedCopy(0, factory.outerDimensions().y + distance, 0);
-    */
 
     // Both parts as assembled
     /*
@@ -294,10 +303,12 @@ int main(int argc, char* argv[])
     Component scene = factory.constructBottom()
             + factory.constructTop()
             .rotatedCopy(180.0, 0, 0)
-            .translatedCopy(0, board::size[1], factory.outerDimensions().z + distance);
+            .translatedCopy(0, board.size[1], factory.outerDimensions().z + distance);
     */
 
 
+
+    // Write the results as an OpenSCAD file.
     IndentWriter writer;
     writer << scene;
     std::ofstream outFile;
