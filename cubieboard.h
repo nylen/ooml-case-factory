@@ -8,12 +8,12 @@ BoardDescription cubieBoard()
 {
     BoardDescription b;
 
-    // board size
+    // Board size
     b.size[0] = 99.9;
     b.size[1] = 60.0;
     b.thickness = 1.5;
 
-    // board holes
+    // Board holes
     b.holes = {
         {3.3, 3.5}, {3.3, b.size[1] - 3.5},
         { 77, 3.5}, { 77, b.size[1] - 3.5}
@@ -21,7 +21,6 @@ BoardDescription cubieBoard()
     b.holesRadius = 1.5; // = M3
 
     // Each area marks a cuboid in which no stuff should be placed (i.e., where some parts are on the board)
-    // encoded in x, y,  size_x, size_y, size_z  (all numbers positive, z relative to board surface (bottom/top))
     b.bottomForbiddenAreas = {
         { 6.5,  1.1,    49.0,  5.0,  2.5}, // GPIO pins 1 - black part
         { 7.5,  1.5,    47.0,  4.2,  6.0}, // GPIO pins 1 - pins
@@ -44,7 +43,7 @@ BoardDescription cubieBoard()
     b.bottomPorts = {
         // Audio (Line-In)
         {
-            Port::West, {
+            PortDescription::West, {
                 {17.8, 2.6},
                 {17.8,  -1} // avoid bridge
             },
@@ -55,7 +54,7 @@ BoardDescription cubieBoard()
     b.topPorts = {
         // Audio (Line-Out)
         {
-            Port::West, {
+            PortDescription::West, {
                 {17.8, 2.6},
                 {17.8,  -3} // avoid bridge
             },
@@ -64,7 +63,7 @@ BoardDescription cubieBoard()
         },
         // USB Power
         {
-            Port::West, {
+            PortDescription::West, {
                 {26.5, 3.5},
                 {33.5, 3.5},
                 {33.5,  -3}, // avoid bridge
@@ -75,7 +74,7 @@ BoardDescription cubieBoard()
         },
         // Ethernet (Including the housing, as it protrudes) (This should not be required since it's already covered by "forbidden areas", but for the sake of completeness...)
         {
-            Port::West, {
+            PortDescription::West, {
                 {36.5, 13.5},
                 {53.0, 13.5},
                 {53.0,   -3}, // avoid bridge
@@ -86,7 +85,7 @@ BoardDescription cubieBoard()
         },
         // USB (2x)
         {
-            Port::North, {
+            PortDescription::North, {
                 {57.5,   -3}, // avoid bridge
                 {57.5, 15.5},
                 {71.0, 15.5},
@@ -98,7 +97,7 @@ BoardDescription cubieBoard()
         // TODO: SD-card slot. Could be a bit hard to get nice.
         // HDMI
         {
-            Port::East, {
+            PortDescription::East, {
                 {25.5,  5.5},
                 {39.5,  5.5},
                 {39.5,  2.5},
@@ -110,7 +109,7 @@ BoardDescription cubieBoard()
         },
         // Power
         {
-            Port::East, {
+            PortDescription::East, {
                 {6.5, 3.0},
                 {6.5,  -3} // avoid bridge
             },

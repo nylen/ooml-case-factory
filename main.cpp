@@ -214,22 +214,22 @@ private:
         return component + cuboid - hole;
     }
 
-    Component addHoleForPort(const Component & component, double partOuterHeight, const Port & port)
+    Component addHoleForPort(const Component & component, double partOuterHeight, const PortDescription & port)
     {
         double off_xy = walls + space;
 
         // u is the vector facing in the positive axis parallel to the side (orthogonal to both n and the z axis)
         // v is the vector which is used for the port's local point's y coordinate and faces away from the board surface.
         Vec u = {0, 0, 0}, v = {0, 0, -1};
-        if (port.side == Port::North) { u.x = 1; }
-        if (port.side == Port::East)  { u.y = 1; }
-        if (port.side == Port::South) { u.x = 1; }
-        if (port.side == Port::West)  {  u.y = 1; }
+        if (port.side == PortDescription::North) { u.x = 1; }
+        if (port.side == PortDescription::East)  { u.y = 1; }
+        if (port.side == PortDescription::South) { u.x = 1; }
+        if (port.side == PortDescription::West)  {  u.y = 1; }
 
         // The base position of a port, if it has a local point of (0,0). This is the "origin" of the side.
         Vec base = {0, 0, partOuterHeight};
-        if (port.side == Port::North) { base.y = board.size[1]; }
-        if (port.side == Port::East)  { base.x = board.size[0]; }
+        if (port.side == PortDescription::North) { base.y = board.size[1]; }
+        if (port.side == PortDescription::East)  { base.x = board.size[0]; }
 
         // The hole is a hull of translated cylinders, so the hole is a rounded shape with radius port.radius along port.path [If the radius is 0, we use a tiny cylinder with 4 faces]
         Component cyl = Cylinder(std::max(port.radius, .001), off_xy + 2 * eps, port.radius == 0 ? 4 : 32, false);
