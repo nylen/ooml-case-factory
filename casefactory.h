@@ -98,8 +98,8 @@ private:
     // Wall extension: 0 = on the inner half of the wall, 1 = on the outer half of the wall
     Component constructBase(double innerHeight, int extensionDirection);
 
+    Component addWallSupport(const Component & component, double supportHeight, const WallSupportDescription & wallSupport);
     Component addHoleForScrew(const Component & component, double partOuterHeight, const Point & pos, double radius, bool screwHead);
-
     Component addHoleForPort(const Component & component, double partOuterHeight, const PortDescription & port);
 };
 
