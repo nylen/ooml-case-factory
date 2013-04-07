@@ -1,7 +1,7 @@
 # Compiler, tools and options
 
 CXX           = g++
-CXXFLAGS      = -m64 -pipe -std=c++11 -Wall -Wno-sign-compare -W -fPIE
+CXXFLAGS      = -m64 -pipe -std=c++11 -Wall -Wno-sign-compare -W -fPIE -g
 INCPATH       = -I/usr/include/ooml
 
 LINK          = g++
