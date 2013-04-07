@@ -5,7 +5,7 @@
 #include "cubieboard.h"
 
 
-void write(const Component & model, std::string fileName)
+void write(std::string fileName, const Component & model)
 {
     IndentWriter writer;
     writer << model;
