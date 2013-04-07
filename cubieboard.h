@@ -4,7 +4,7 @@
 #include "boarddescription.h"
 
 
-// The CubieBoard,
+// The Cubieboard (http://linux-sunxi.org/Cubieboard)
 
 BoardDescription cubieBoard()
 {
@@ -31,14 +31,19 @@ BoardDescription cubieBoard()
         {77.0, 41.5,    21.5, 12.5,  1.4}, // Flash chip
         {57.5,  1.5,    15.5,  4.5,  2.0}, // Pins of the SATA port
         {81.0,  1.5,     5.5,  4.5,  1.5}, // Pins of the IR diode
-        {  .0, 14.0,    13.0,  7.5,  5.5}, // Audio port  // FIXME
+        { 0.0, 14.0,    13.0,  7.5,  5.5}, // Audio port
     };
     b.topForbiddenAreas = {
+        { 6.5,  1.1,    49.0,  5.0,  2.5}, // GPIO pins 1 - pins with solder
+        { 6.5, 54.2,    49.0,  5.0,  2.5}, // GPIO pins 2 - pins with solder
+        { 1.0,  7.0,    49.0, 16.0,  1.0}, // Some resistors
         {  -4, 36.5,    12.0, 16.5, 13.5}, // Ethernet port
         {56.0,  0.0,    18.0,  8.0, 11.0}, // SATA port
         {73.5,  7.0,    10.0,  7.0,  9.0}, // SATA power
         {81.0,  0.0,     6.0,  7.5, 11.0}, // IR diode
         {79.5, 43.5,    15.5, 18.0,  2.0}, // microSD slot incl. space for card
+        {88.0, 24.5,    12.6, 16.0,  5.5}, // HDMI port
+        {87.0,  1.5,    13.6,  8.5,  6.5}, // Power port
     };
 
     // The board ports (connections).
@@ -106,8 +111,8 @@ BoardDescription cubieBoard()
                 {32.5,  -10}, // avoid bridge (about 30 degree overhang)
                 {25.5,  2.5}
             },
-            1.5, // radius
-            2.0  // outset
+            1.0, // radius
+            1.0  // outset
         },
         // Power
         {

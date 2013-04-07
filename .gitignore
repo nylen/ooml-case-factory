@@ -3,4 +3,6 @@ casefactory
 ooml-casefactory*
 *.scad
 *.stl
+*.png
+*.jpg
 
