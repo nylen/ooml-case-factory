@@ -6,6 +6,32 @@
 CaseFactory::CaseFactory(BoardDescription board) :
     board(board)
 {
+    // Calculate the maximum dimensions in z direction
+
+    // TODO: Can we do this nicer with some code extraction?
+    boardBottomInnerHeight = 0.0;
+    for (auto area : board.bottomForbiddenAreas) {
+        boardBottomInnerHeight = std::max(boardBottomInnerHeight,
+                                          area.sz);
+    }
+    for (auto port : board.bottomPorts) {
+        for (Point p : port.path) {
+            boardBottomInnerHeight = std::max(boardBottomInnerHeight,
+                                              p.y + port.radius);
+        }
+    }
+
+    boardTopInnerHeight = 0.0;
+    for (auto area : board.topForbiddenAreas) {
+        boardTopInnerHeight = std::max(boardTopInnerHeight,
+                                          area.sz);
+    }
+    for (auto port : board.topPorts) {
+        for (Point p : port.path) {
+            boardTopInnerHeight = std::max(boardTopInnerHeight,
+                                              p.y + port.radius);
+        }
+    }
 }
 
 
@@ -30,13 +56,13 @@ Vec CaseFactory::outerDimensions()
 Component CaseFactory::constructPart(Side whichSide)
 {
     // Select parameters depending on which part to build
-    auto innerHeight     = (whichSide == BottomSide) ? bottomInnerHeight          : topInnerHeight;
+    auto innerHeight     = (whichSide == BottomSide) ? bottomInnerHeight()        : topInnerHeight();
     auto outerHeight     = (whichSide == BottomSide) ? bottomHeight()             : topHeight();
     auto forbiddenAreas  = (whichSide == BottomSide) ? board.bottomForbiddenAreas : board.topForbiddenAreas;
     auto ports           = (whichSide == BottomSide) ? board.bottomPorts          : board.topPorts;
     auto wallSupports    = (whichSide == BottomSide) ? board.bottomWallSupports   : board.topWallSupports;
-    auto extension       = (whichSide == outerExtensionOnSide) ? ExtensionOutside  : ExtensionInside;
-    auto screwHoleRadius = (whichSide == screwHeadsOnSide) ? (board.holesRadius + holesAddRadiusLoose) : (board.holesRadius + holesAddRadiusTight);
+    auto extension       = (whichSide == outerExtensionOnSide) ? ExtensionOutside : ExtensionInside;
+    auto screwHoleRadius =((whichSide == screwHeadsOnSide) ? holesAddRadiusLoose : holesAddRadiusTight) + board.holesRadius;
     auto screwHeads      = (whichSide == screwHeadsOnSide);
 
     // We start with the base
@@ -146,30 +172,30 @@ Component CaseFactory::addWallSupport(const Component &component, double support
 
 Component CaseFactory::addHoleForScrew(const Component & component, double partOuterHeight, const Point & pos, double radius, bool screwHead)
 {
-    // The "radius" of the cuboid. Maybe a cylindrical shape is nicer?
+    // The radius of the screw head hole as well as the "radius" of the outer cuboid shaped enclosure for the screw.
     double ri = holesSize / 2.0;
     double ro = holesSize / 2.0 + holesWalls;
 
-    // Hole cuboid
-    Component cuboid = Cube(ro*2, ro*2, partOuterHeight, false)
+    // Add to component: Hole cuboid
+    Component add = Cube(ro*2, ro*2, partOuterHeight, false)
             .translatedCopy(pos.x - ro, pos.y - ro, 0);
-    if (screwHead) {
-        Component cuboidInner = Cube(ri*2, ri*2, partOuterHeight - holesFloors + eps, false)
-                .translatedCopy(pos.x - ri, pos.y - ri, -eps);
-        cuboid = cuboid - cuboidInner;
-    }
 
-    // Hole itself
+    // Subtract from component: Hole itself and maybe (if this is the screw head side) also a cylindrical-shaped screw head hole)
     double holeStart;
     if (screwHead)
-        holeStart = (partOuterHeight - holesFloors) + (printLevelHeight * printSafeBridgeLayerCount);
+        holeStart = (partOuterHeight - holesFloors) + (printLayerHeight * printSafeBridgeLayerCount);
     else
         holeStart = floors;
-    Component hole = Cylinder(radius, partOuterHeight - holeStart + eps, 32, false)
+    Component subtract = Cylinder(radius, partOuterHeight - holeStart + eps, 32, false)
             .translatedCopy(pos.x, pos.y, holeStart);
+    if (screwHead) {
+        Component headHole = Cylinder(ri, partOuterHeight - holesFloors + eps, 32, false)
+                .translatedCopy(pos.x, pos.y, -eps);
+        subtract = subtract + headHole;
+    }
 
     // Combine them on the existing component
-    return component + cuboid - hole;
+    return (component + add) - subtract;
 }
 
 

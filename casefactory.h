@@ -17,15 +17,31 @@ static const double eps = .1;
 
 struct CaseFactory
 {
-    CaseFactory(BoardDescription board);
-
     enum Side {
         BottomSide,
         TopSide
     };
 
 
-    // Case dimension parameters:
+    //! Constructor. You have to tell the factory for which board you want to
+    //! generate a case. (Note: This instance will be copied. Any changes made
+    //! outside are invisible to this class.)
+    CaseFactory(BoardDescription board);
+
+
+    //! Generate the bottom part of the case.
+    Component constructBottom();
+
+    //! Generate the top part of the case.
+    Component constructTop();
+
+    //! Calculate the total outer dimensions of the assembled case.
+    Vec outerDimensions();
+
+
+
+
+    // CASE DIMENSION PARAMETERS - CHANGE THEM TO YOUR NEEDS BEFORE GENERATING ANY COMPONENTS.
 
     // case thickness
     double walls = 3.0;
@@ -41,9 +57,14 @@ struct CaseFactory
     // space between board and case in xy dimensions (should be somewhere between 0 and 1)
     double space = .3;
 
+    // these numbers will be subtracted from the automatically calculated case's inner height (which itself will be the maximum z value of all components on the board)
+    double smallerBottomHeight = 0.0;
+    double smallerTopHeight = 0.0;
+
     // rounded corners (only on the outside)
     double cornerRadius = 2;
     double cornerFaces = 20; // should be >= 16.
+
 
     // what to build on which side (the contrary part is on the other side)
     Side screwHeadsOnSide = BottomSide;
@@ -51,41 +72,48 @@ struct CaseFactory
 
 
 
-    // Print parameters:
-    double printLevelHeight = .2;
-    double printSafeBridgeLayerCount = 1; // Number of layers for safe bridges to be printed (won't have "bridge holes" in this number of layers)
+    // 3D PRINTING PARAMETERS - CHANGE THEM TO YOUR NEEDS BEFORE GENERATING ANY COMPONENTS.
+
+    // 3D printing layer height.
+    // Currently only required to model "safe bridges"; see below.
+    double printLayerHeight = .2;
+
+    // Number of layers for "safe bridges" to be printed.
+    // Safe brides won't have holes in them, even if the final object should have.
+    // This is to simplify printing bridges, as bridges with holes are almost impossible to print.
+    // If your printer has problems printing bridges, set this value to 2 or even 3.
+    double printSafeBridgeLayerCount = 1;
 
 
 
-
-    // TODO: Derive these values from the board dimensions! .5mm less than the largest forbidden area / port dimension.
-    // Case height (separately for bottom / top part)
-    double bottomInnerHeight = 5.5;
-    double topInnerHeight = 16.5;
-
-    // Components factory:
-    Component constructBottom();
-
-    Component constructTop();
-
-    // Calculate the final dimension of the assembled case
-    Vec outerDimensions();
 
 
 private:
-    BoardDescription board;
-
     enum {
         ExtensionInside = 0,
         ExtensionOutside = 1
     };
 
-    inline double bottomHeight() { return bottomInnerHeight + floors; }
-    inline double topHeight() { return topInnerHeight + floors; }
+    BoardDescription board;
+
+    // Calculated in the constructor after the board is known
+    double boardBottomInnerHeight;
+    double boardTopInnerHeight;
+
+
+    // Inner height of the case (measured from board's surface to inner surface of the case)
+    inline double bottomInnerHeight() { return boardBottomInnerHeight - smallerBottomHeight; }
+    inline double topInnerHeight() { return boardTopInnerHeight - smallerTopHeight; }
+
+    // Outer height of the case (measured from board's surface to outer surface of the case)
+    inline double bottomHeight() { return bottomInnerHeight() + floors; }
+    inline double topHeight() { return topInnerHeight() + floors; }
+
+    // Total height of the case. The extension has to be added ONCE to the total height (as it is half on the bottom, half on the top part)
     inline double extensionHeight() { return board.thickness; }
     inline double totalHeight() { return bottomHeight() + topHeight() + extensionHeight(); }
 
-    // Returns the added size on each border in xy directions to the board's dimensions. (Case size = board size + 2 * outset)
+    // Additional size on each border in X and Y directions to the board's dimensions. (Case size = board size + 2 * outset)
     inline double outset() { return walls + space; }
 
     // Returns the case's size (see outset()).
