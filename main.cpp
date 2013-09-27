@@ -2,7 +2,11 @@
 #include <ooml/core/IndentWriter.h>
 
 #include "casefactory.h"
-#include "cubieboard.h"
+//#include "cubieboard.h"
+
+
+// Added by: Anthony W. Rainer <pristine.source@gmail.com>
+#include "bb-atxra.h"
 
 
 // Small helper function which writes the model to a file in SCAD format.
@@ -21,8 +25,8 @@ int main()
 {
     // Here, you can change the board for which a case you want to construct.
     // Don't forget to change the #include statement above.
-    BoardDescription board = cubieBoard();
-    std::string name = "cubieboard"; // File name prefix
+    BoardDescription board = bbatxraBoard();
+    std::string name = "bb-atxraboard"; // File name prefix
 
     // Create a factory to build a case for this board.
     CaseFactory factory(board);
