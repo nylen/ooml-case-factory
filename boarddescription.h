@@ -9,7 +9,9 @@ enum Side {
     North,  // positive Y
     East,   // positive X
     South,  // negative Y
-    West    // negative X
+    West,   // negative X
+// Added by: Anthony W. Rainer <pristine.source@gmail.com>
+    Flat    // the flat edge
 };
 inline Vec sidePositiveTangentialVector(Side side) {
     Vec u = {0.0, 0.0, 0.0};
@@ -34,11 +36,11 @@ struct PortDescription {
 // These areas will be subtracted from the case model by the factory.
 struct ForbiddenAreaDescription {
     // All numbers positive, z relative to board surface (bottom/top)
-    double x;
-    double y;
-    double sx;
-    double sy;
-    double sz;
+    double x; // start x
+    double y; // start y
+    double sx; // size x
+    double sy; // size y
+    double sz; // size z
 };
 
 struct WallSupportDescription {
@@ -46,6 +48,15 @@ struct WallSupportDescription {
     double pos;   // Same as the x-coorindate of a point of the path in a PortDescription
     double size;  // Entent in the same direction as pos.
     double inset; // The length of the support towards the inside of the case (0 = at the board's border). Forbidden areas have to be inserted properly.
+};
+
+// Added by: Anthony W. Rainer <pristine.source@gmail.com>
+struct HoleNutDescription {
+	int holeIndex; // the offset index from BoardDescription.holes
+	double nutWidth; // the width of the nut (M3 = 5.5)
+	double nutThickness;
+	double nutCavityHeightFromBottom; // the distance from the bottom of the case to but the cavity for the nut
+	Side side; // the side that the cavity starts, the side that you put the nut into
 };
 
 
@@ -63,15 +74,21 @@ struct BoardDescription
     // PCB board holes for screws
     std::vector<Point> holes;
     double holesRadius = 0.0;
+    
+    // Added by: Anthony W. Rainer <pristine.source@gmail.com>
+    std::vector<HoleNutDescription> holeNuts;
 
     // Each area marks a cuboid in which no stuff should be placed (i.e., where some parts are on the board)
     std::vector<ForbiddenAreaDescription> bottomForbiddenAreas;
     std::vector<ForbiddenAreaDescription> topForbiddenAreas;
+    
+    // Added by: Anthony W. Rainer <pristine.source@gmail.com>
+    std::vector<ForbiddenAreaDescription> topHoles;
 
-    // The board ports (connections).
+    // The board ports (connections). on the sides of the case
     std::vector<PortDescription> bottomPorts;
     std::vector<PortDescription> topPorts;
-
+ 
     // Some wall supports where the walls would be too tiny otherwise
     // TODO: Maybe this can be calculated automatically?
     std::vector<WallSupportDescription> bottomWallSupports;

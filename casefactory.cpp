@@ -27,6 +27,7 @@ CaseFactory::CaseFactory(BoardDescription board) :
                                           area.sz);
     }
     for (auto port : board.topPorts) {
+	if(port.side == Flat) continue; // we do not count top ports towrds the height
         for (Point p : port.path) {
             boardTopInnerHeight = std::max(boardTopInnerHeight,
                                               p.y + port.radius);
@@ -58,7 +59,7 @@ Component CaseFactory::constructPart(Side whichSide)
     // Select parameters depending on which part to build
     auto innerHeight     = (whichSide == BottomSide) ? bottomInnerHeight()        : topInnerHeight();
     auto outerHeight     = (whichSide == BottomSide) ? bottomHeight()             : topHeight();
-    auto forbiddenAreas  = (whichSide == BottomSide) ? board.bottomForbiddenAreas : board.topForbiddenAreas;
+    auto forbiddenAreas  = (whichSide == BottomSide) ? board.bottomForbiddenAreas          : board.topForbiddenAreas;
     auto ports           = (whichSide == BottomSide) ? board.bottomPorts          : board.topPorts;
     auto wallSupports    = (whichSide == BottomSide) ? board.bottomWallSupports   : board.topWallSupports;
     auto extension       = (whichSide == outerExtensionOnSide) ? ExtensionOutside : ExtensionInside;
@@ -76,6 +77,14 @@ Component CaseFactory::constructPart(Side whichSide)
     // Screw holes
     for (auto hole : board.holes) {
         c = addHoleForScrew(c, outerHeight, hole, screwHoleRadius, screwHeads);
+    }
+    
+    // Added by: Anthony W. Rainer <pristine.source@gmail.com>
+    if(whichSide == TopSide) {
+	// Screw holes Nuts
+        for (auto holeNut : board.holeNuts) {
+            c = addCavityForNut(c, outerHeight, board.holes[holeNut.holeIndex], holeNut);
+        }
     }
 
     // Apply rounded corners (if enabled)
@@ -198,6 +207,48 @@ Component CaseFactory::addHoleForScrew(const Component & component, double partO
     return (component + add) - subtract;
 }
 
+// Added by: Anthony W. Rainer <pristine.source@gmail.com>
+Component CaseFactory::addCavityForNut(const Component & component, double partOuterHeight, const Point & pos, HoleNutDescription holeNut )
+{
+    // The "radius" of the outer cuboid shaped enclosure for the screw.
+    double ro = holesSize / 2.0 + holesWalls;
+    double ri = holeNut.nutWidth / 2;
+    double sx_adj = 0.0;
+    double sy_adj = 0.0;
+    double posx_adj = 0.0;
+    double posy_adj = 0.0;
+    switch(holeNut.side) {
+	    case East:
+		    posx_adj = ro - ri;
+		    posy_adj = ri / 2;
+		    sx_adj = ro + 0.1;
+		    break;
+	    case West:
+		    posx_adj = -ro + ri;
+		    posy_adj = ri / 2;
+		    sx_adj = ro + 0.1;
+		    break;
+	    case North:
+		    posy_adj = ro - ri;
+		    posx_adj = ri / 2;
+		    sy_adj = ro + 0.1;
+		    break;
+	    case South:
+		    posy_adj = -ro + ri;
+		    posx_adj = ri / 2;
+		    sy_adj = ro + 0.1;
+		    break;
+	    default:
+		    break;
+    }
+
+    // Subtract from component: nut cavity cuboid
+    Component subtract = Cube(holeNut.nutWidth+sx_adj, holeNut.nutWidth+sy_adj, holeNut.nutThickness, false)
+            .translatedCopy((pos.x - ro)+posx_adj, (pos.y - ro)+posy_adj, holeNut.nutCavityHeightFromBottom);
+
+    return component - subtract;
+}
+
 
 Component CaseFactory::addHoleForPort(const Component & component, double partOuterHeight, const PortDescription & port)
 {
@@ -216,25 +267,46 @@ Component CaseFactory::addHoleForPort(const Component & component, double partOu
     // The hole is a hull of translated cylinders, so the hole is a rounded shape with radius port.radius along port.path [If the radius is 0, we use a tiny cylinder with 4 faces]
     Component cyl = Cylinder(std::max(port.radius, .001), off_xy + 2 * eps, port.radius == 0 ? 4 : 32, false);
     cyl.translate(0, 0, -eps);
-    cyl.rotateEulerZXZ(0.0, -90.0, -90.0 * port.side);
+    
+    // Added by: Anthony W. Rainer <pristine.source@gmail.com>
+    if(port.side != Flat) {
+	cyl.rotateEulerZXZ(0.0, -90.0, -90.0 * port.side);
+    }else{
+	cyl.rotateEulerZXZ(0.0, 180.0, 0);
+    }
 
     // Add a cone for diagonal borders of the port hole
     double coneLength = off_xy - port.outset;
     Component cone = Cylinder(port.radius, port.radius + coneLength + 2 * eps, coneLength + 2 * eps, 32, false);
     cone.translate(0, 0, port.outset);
-    cone.rotateEulerZXZ(0.0, -90.0, -90.0 * port.side);
+    
+    // Added by: Anthony W. Rainer <pristine.source@gmail.com>
+    if(port.side != Flat) {
+	cone.rotateEulerZXZ(0.0, -90.0, -90.0 * port.side);
+    }else{
+	cone.rotateEulerZXZ(0.0, 180.0, 0);
+    }
 
     // Build convex hull of translated copies of this cylinder along the path of the port
     CompositeComponent cylHull = Hull::create();
     CompositeComponent coneHull = Hull::create();
     for (auto localPoint : port.path)
     {
-        Vec p = base + localPoint.x*u + localPoint.y*v;
+        Vec p;
+	    
+	// Added by: Anthony W. Rainer <pristine.source@gmail.com>
+	if(port.side != Flat) {
+		p = base + localPoint.x*u + localPoint.y*v;
+	} else {
+		p.z = off_xy;
+		p.x = localPoint.x;
+		p.y = localPoint.y;
+	}
         Component thisCyl = cyl.translatedCopy(p.x, p.y, p.z);
-        Component thisCone = cone.translatedCopy(p.x, p.y, p.z);
-        cylHull.addComponent(thisCyl);
-        coneHull.addComponent(thisCone);
+	cylHull.addComponent(thisCyl);
+	
+	Component thisCone = cone.translatedCopy(p.x, p.y, p.z);
+	coneHull.addComponent(thisCone);
     }
-
     return component - (cylHull + coneHull);
 }

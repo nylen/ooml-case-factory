@@ -129,6 +129,10 @@ private:
     Component addWallSupport(const Component & component, double supportHeight, const WallSupportDescription & wallSupport);
     Component addHoleForScrew(const Component & component, double partOuterHeight, const Point & pos, double radius, bool screwHead);
     Component addHoleForPort(const Component & component, double partOuterHeight, const PortDescription & port);
+    
+    
+    // Added by: Anthony W. Rainer <pristine.source@gmail.com>
+    Component addCavityForNut(const Component & component, double partOuterHeight, const Point & pos, HoleNutDescription holeNut );
 };
 
 
