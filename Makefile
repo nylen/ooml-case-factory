@@ -25,7 +25,7 @@ TARGET        = casefactory
 all: $(TARGET)
 
 
-main.o: main.cpp geom.h boarddescription.h cubieboard.h casefactory.h
+main.o: main.cpp geom.h boarddescription.h board.h casefactory.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 casefactory.o: casefactory.cpp casefactory.h geom.h boarddescription.h

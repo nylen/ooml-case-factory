@@ -1,3 +1,4 @@
+board.h
 *.o
 casefactory
 ooml-casefactory*

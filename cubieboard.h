@@ -6,9 +6,11 @@
 
 // The Cubieboard (http://linux-sunxi.org/Cubieboard)
 
-BoardDescription cubieBoard()
+BoardDescription makeBoard()
 {
     BoardDescription b;
+
+    b.name = "cubieboard";
 
     // Board size
     b.size[0] = 99.9;

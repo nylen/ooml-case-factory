@@ -67,6 +67,9 @@ struct HoleNutDescription {
 // classes which are used by this class.
 struct BoardDescription
 {
+    // Board name (filename prefix)
+    std::string name;
+
     // PCB board dimensions
     double size[2] = {0.0, 0.0};
     double thickness = 0.0;

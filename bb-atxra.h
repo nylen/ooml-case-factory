@@ -9,7 +9,7 @@
 // All measured as if the board were turned so the switch is at the bottom and the ATX connector is to the right
 // All metric nut sizes from: http://www.fairburyfastener.com/xdims_metric_nuts.htm
 
-BoardDescription bbatxraBoard()
+BoardDescription makeBoard()
 {
     BoardDescription b;
 

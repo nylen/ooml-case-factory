@@ -2,12 +2,7 @@
 #include <ooml/core/IndentWriter.h>
 
 #include "casefactory.h"
-//#include "cubieboard.h"
-
-
-// Added by: Anthony W. Rainer <pristine.source@gmail.com>
-#include "bb-atxra.h"
-
+#include "board.h"
 
 // Small helper function which writes the model to a file in SCAD format.
 void write(std::string fileName, const Component & model)
@@ -27,10 +22,7 @@ void write(std::string fileName, const Component & model)
 
 int main()
 {
-    // Here, you can change the board for which a case you want to construct.
-    // Don't forget to change the #include statement above.
-    BoardDescription board = bbatxraBoard();
-    std::string name = "bb-atxraboard"; // File name prefix
+    BoardDescription board = makeNamedBoard();
 
     // Create a factory to build a case for this board.
     CaseFactory factory(board);
@@ -50,13 +42,13 @@ int main()
 
     // Write these models to SCAD files. We generate 3 files.
     // 1) Only the bottom:
-    write(name + "-case-bottom.scad", bottom);
+    write(board.name + "-case-bottom.scad", bottom);
     // 2) Only the top:
-    write(name + "-case-top.scad", top);
+    write(board.name + "-case-top.scad", top);
     // 3) Both parts side by side:
     double distance = 5; // mm
     double offset = factory.outerDimensions().y + distance;
-    write(name + "-case.scad", bottom + top.translatedCopy(0, offset, 0));
+    write(board.name + "-case.scad", bottom + top.translatedCopy(0, offset, 0));
 
     return 0;
 }
