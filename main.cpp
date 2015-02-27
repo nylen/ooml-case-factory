@@ -12,12 +12,16 @@
 // Small helper function which writes the model to a file in SCAD format.
 void write(std::string fileName, const Component & model)
 {
+    std::cout << "Writing file " << fileName << " ... ";
+
     IndentWriter writer;
     writer << model;
 
     std::ofstream outFile;
     outFile.open(fileName);
     outFile << writer;
+
+    std::cout << "done" << std::endl;
 }
 
 
