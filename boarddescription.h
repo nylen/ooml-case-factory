@@ -52,11 +52,11 @@ struct WallSupportDescription {
 
 // Added by: Anthony W. Rainer <pristine.source@gmail.com>
 struct HoleNutDescription {
-	int holeIndex; // the offset index from BoardDescription.holes
-	double nutWidth; // the width of the nut (M3 = 5.5)
-	double nutThickness;
-	double nutCavityHeightFromBottom; // the distance from the bottom of the case to but the cavity for the nut
-	Side side; // the side that the cavity starts, the side that you put the nut into
+    int holeIndex; // the offset index from BoardDescription.holes
+    double nutWidth; // the width of the nut (M3 = 5.5)
+    double nutThickness;
+    double nutCavityHeightFromBottom; // the distance from the bottom of the case to but the cavity for the nut
+    Side side; // the side that the cavity starts, the side that you put the nut into
 };
 
 
@@ -74,21 +74,21 @@ struct BoardDescription
     // PCB board holes for screws
     std::vector<Point> holes;
     double holesRadius = 0.0;
-    
+
     // Added by: Anthony W. Rainer <pristine.source@gmail.com>
     std::vector<HoleNutDescription> holeNuts;
 
     // Each area marks a cuboid in which no stuff should be placed (i.e., where some parts are on the board)
     std::vector<ForbiddenAreaDescription> bottomForbiddenAreas;
     std::vector<ForbiddenAreaDescription> topForbiddenAreas;
-    
+
     // Added by: Anthony W. Rainer <pristine.source@gmail.com>
     std::vector<ForbiddenAreaDescription> topHoles;
 
     // The board ports (connections). on the sides of the case
     std::vector<PortDescription> bottomPorts;
     std::vector<PortDescription> topPorts;
- 
+
     // Some wall supports where the walls would be too tiny otherwise
     // TODO: Maybe this can be calculated automatically?
     std::vector<WallSupportDescription> bottomWallSupports;
